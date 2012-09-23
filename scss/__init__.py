@@ -3264,7 +3264,7 @@ def __image_url(path, only_path=False, cache_buster=True, dst_color=None, src_co
     spacing - spaces to be added to the image
     collapse_x, collapse_y - collapsable (layered) image of the given size (x, y)
     """
-    if inline or dst_color or spacing:
+    if dst_color or spacing:
         if not Image:
             raise Exception("Images manipulation require PIL")
     filepath = StringValue(path).value
@@ -3288,7 +3288,7 @@ def __image_url(path, only_path=False, cache_buster=True, dst_color=None, src_co
         else:
             filetime = 'NA'
     BASE_URL = STATIC_URL
-    if path:
+    if path and (dst_color or spacing):
         dst_colors = dst_color
         if isinstance(dst_colors, ListValue):
             dst_colors = [list(ColorValue(v).value[:3]) for n, v in dst_colors.items() if v]
@@ -3376,6 +3376,8 @@ def __image_url(path, only_path=False, cache_buster=True, dst_color=None, src_co
                 contents = output.getvalue()
                 output.close()
                 url = 'data:' + mime_type + ';base64,' + base64.b64encode(contents)
+    elif path and inline:
+        url = 'data:' + mime_type + ';base64,' + base64.b64encode(path.read())
     else:
         url = '%s%s' % (BASE_URL, filepath)
         if cache_buster:
